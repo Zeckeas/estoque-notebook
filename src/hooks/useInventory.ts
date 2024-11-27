@@ -65,36 +65,36 @@ export function useInventory() {
     };
   }
 
-  async function handleAdicionar(local: 'ti' | 'servidor') {
+  async function handleAdicionar(local: 'ti' | 'servidor', quantidade: number) {
     const localId = local === 'ti' ? 1 : 2;
     
     const { error } = await supabase
       .from('notebooks')
-      .update({ quantidade: inventory[local] + 1 })
+      .update({ quantidade: inventory[local] + quantidade })  // Usa a quantidade informada
       .eq('local_id', localId);
-
+  
     if (error) {
       console.error('Error adding notebook:', error);
     }
-
+  
     // Recarregar o inventário após a mudança
     loadInventory();
   }
 
-  async function handleRemover(local: 'ti' | 'servidor') {
-    if (inventory[local] <= 0) return;
-    
+  async function handleRemover(local: 'ti' | 'servidor', quantidade: number) {
+    if (inventory[local] <= 0 || inventory[local] < quantidade) return; // Verifica se tem quantidade suficiente
+  
     const localId = local === 'ti' ? 1 : 2;
     
     const { error } = await supabase
       .from('notebooks')
-      .update({ quantidade: inventory[local] - 1 })
+      .update({ quantidade: inventory[local] - quantidade })  // Usa a quantidade informada
       .eq('local_id', localId);
-
+  
     if (error) {
       console.error('Error removing notebook:', error);
     }
-
+  
     // Recarregar o inventário após a mudança
     loadInventory();
   }
