@@ -52,43 +52,64 @@ export function useInventory() {
       .channel('notebooks-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'notebooks' }, loadInventory)
       .subscribe();
-
+  
     const entregasSubscription = supabase
       .channel('entregas-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'entregas' }, loadInventory)
       .subscribe();
-
+  
+    // Cleanup para evitar múltiplas assinaturas
     return () => {
-      notebooksSubscription.unsubscribe();
-      entregasSubscription.unsubscribe();
+      supabase.removeChannel(notebooksSubscription);
+      supabase.removeChannel(entregasSubscription);
     };
   }
 
   async function handleAdicionar(local: 'ti' | 'servidor') {
     const localId = local === 'ti' ? 1 : 2;
-    
+    const newQuantity = inventory[local] + 1;
+  
+    // Atualiza o estado imediatamente
+    setInventory((prev) => ({
+      ...prev,
+      [local]: newQuantity,
+    }));
+  
+    // Faz a atualização no banco
     const { error } = await supabase
       .from('notebooks')
-      .update({ quantidade: inventory[local] + 1 })
+      .update({ quantidade: newQuantity })
       .eq('local_id', localId);
-
+  
     if (error) {
       console.error('Error adding notebook:', error);
+      // Recarrega o inventário se ocorrer erro
+      await loadInventory();
     }
   }
 
   async function handleRemover(local: 'ti' | 'servidor') {
     if (inventory[local] <= 0) return;
-    
+  
     const localId = local === 'ti' ? 1 : 2;
-    
+    const newQuantity = inventory[local] - 1;
+  
+    // Atualiza o estado imediatamente
+    setInventory((prev) => ({
+      ...prev,
+      [local]: newQuantity,
+    }));
+  
+    // Faz a atualização no banco
     const { error } = await supabase
       .from('notebooks')
-      .update({ quantidade: inventory[local] - 1 })
+      .update({ quantidade: newQuantity })
       .eq('local_id', localId);
-
+  
     if (error) {
       console.error('Error removing notebook:', error);
+      // Recarrega o inventário se ocorrer erro
+      await loadInventory();
     }
   }
 
