@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // Importa o hook de navegação
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -8,6 +9,7 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { signIn } = useAuth();
+  const navigate = useNavigate(); // Instância do hook de navegação
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,6 +18,7 @@ export function LoginForm() {
 
     try {
       await signIn(email, password);
+      navigate('/dashboard'); // Redireciona para a página desejada
     } catch (err) {
       setError('Credenciais inválidas. Por favor, tente novamente.');
     } finally {
@@ -25,13 +28,22 @@ export function LoginForm() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg border border-gray-200 p-8">
+        {/* Espaço para a logo */}
+        <div className="flex justify-center mb-6">
+          <img
+            src="https://i.imgur.com/9OuS3tl.gif"
+            alt="Logo da Empresa"
+            className="h-25 w-auto"
+          />
+        </div>
+
+        <h3 className="text-2xl font-bold text-center text-gray-800 mb-8">
           Login do Sistema
-        </h2>
-        
+        </h3>
+
         {error && (
-          <div className="bg-red-50 text-red-500 p-3 rounded-md mb-4">
+          <div className="bg-red-50 text-red-500 p-3 rounded-md mb-4 border border-red-200">
             {error}
           </div>
         )}
@@ -47,7 +59,7 @@ export function LoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
 
@@ -61,7 +73,7 @@ export function LoginForm() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
 

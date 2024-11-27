@@ -64,39 +64,61 @@ export function useInventory() {
     };
   }
 
-  async function handleAdicionar(local: 'ti' | 'servidor') {
-    const localId = local === 'ti' ? 1 : 2;
-    
-    const { error } = await supabase
+ // Função para adicionar notebooks
+async function handleAdicionar(local: 'ti' | 'servidor') {
+  const localId = local === 'ti' ? 1 : 2;
+
+  try {
+    const { data: updatedData, error } = await supabase
       .from('notebooks')
       .update({ quantidade: inventory[local] + 1 })
-      .eq('local_id', localId);
+      .eq('local_id', localId)
+      .select();
 
-    if (error) {
-      console.error('Error adding notebook:', error);
-    }
+    if (error) throw error;
+
+    // Atualizar o estado local com a nova quantidade de notebooks
+    setInventory((prev) => ({
+      ...prev,
+      [local]: updatedData[0]?.quantidade || prev[local],
+    }));
+  } catch (error) {
+    console.error('Error adding notebook:', error);
   }
+}
 
-  async function handleRemover(local: 'ti' | 'servidor') {
-    if (inventory[local] <= 0) return;
-    
-    const localId = local === 'ti' ? 1 : 2;
-    
-    const { error } = await supabase
+// Função para remover notebooks
+async function handleRemover(local: 'ti' | 'servidor') {
+  if (inventory[local] <= 0) return;
+
+  const localId = local === 'ti' ? 1 : 2;
+
+  try {
+    const { data: updatedData, error } = await supabase
       .from('notebooks')
       .update({ quantidade: inventory[local] - 1 })
-      .eq('local_id', localId);
+      .eq('local_id', localId)
+      .select();
 
-    if (error) {
-      console.error('Error removing notebook:', error);
-    }
+    if (error) throw error;
+
+    // Atualizar o estado local com a nova quantidade de notebooks
+    setInventory((prev) => ({
+      ...prev,
+      [local]: updatedData[0]?.quantidade || prev[local],
+    }));
+  } catch (error) {
+    console.error('Error removing notebook:', error);
   }
+}
 
-  async function handleEntrega(data: { colaborador: string; quantidade: number; local: 'TI' | 'Servidor' }) {
-    const localId = data.local === 'TI' ? 1 : 2;
-    const localKey = data.local === 'TI' ? 'ti' : 'servidor';
+async function handleEntrega(data: { colaborador: string; quantidade: number; local: 'TI' | 'Servidor' }) {
+  const localId = data.local === 'TI' ? 1 : 2;
+  const localKey = data.local === 'TI' ? 'ti' : 'servidor';
 
-    if (inventory[localKey] >= data.quantidade) {
+  if (inventory[localKey] >= data.quantidade) {
+    try {
+      // Inserir a entrega no banco de dados
       const { error: entregaError } = await supabase
         .from('entregas')
         .insert({
@@ -105,21 +127,80 @@ export function useInventory() {
           local_id: localId,
         });
 
-      if (entregaError) {
-        console.error('Error registering delivery:', entregaError);
-        return;
-      }
+      if (entregaError) throw entregaError;
 
-      const { error: notebookError } = await supabase
+      // Atualiza a quantidade de notebooks no banco de dados
+      const { data: updatedData, error: notebookError } = await supabase
         .from('notebooks')
         .update({ quantidade: inventory[localKey] - data.quantidade })
-        .eq('local_id', localId);
+        .eq('local_id', localId)
+        .select();
 
-      if (notebookError) {
-        console.error('Error updating notebook quantity:', notebookError);
-      }
+      if (notebookError) throw notebookError;
+
+      // Atualiza o estado local com a nova quantidade de notebooks
+      setInventory((prev) => ({
+        ...prev,
+        [localKey]: updatedData[0]?.quantidade || prev[localKey],
+        historico: [
+          ...prev.historico,
+          {
+            id: Date.now().toString(),
+            colaborador: data.colaborador,
+            quantidade: data.quantidade,
+            local: data.local,
+            data: new Date().toISOString(),
+          },
+        ], // Adiciona a nova entrega no histórico local
+      }));
+    } catch (error) {
+      console.error('Error processing delivery:', error);
     }
+  } else {
+    console.log('Quantidade de notebooks insuficiente');
   }
+}
+
+
+  async function handleRemoverEntrega(id: string) {
+    // Encontre a entrega no estado local
+    const entrega = inventory.historico.find((e) => e.id === id);
+    if (!entrega) return;
+  
+    // Defina os valores de localId e localKey com base na entrega
+    const localId = entrega.local === 'TI' ? 1 : 2;
+    const localKey = entrega.local === 'TI' ? 'ti' : 'servidor';
+  
+    // Remover a entrega do banco de dados
+    const { error: deleteError } = await supabase
+      .from('entregas')
+      .delete()
+      .eq('id', id);
+  
+    if (deleteError) {
+      console.error('Erro ao remover entrega:', deleteError);
+      return;
+    }
+  
+    // Atualizar a quantidade de notebooks no banco de dados
+    const { error: updateError } = await supabase
+      .from('notebooks')
+      .update({ quantidade: inventory[localKey] + entrega.quantidade })
+      .eq('local_id', localId);
+  
+    if (updateError) {
+      console.error('Erro ao atualizar quantidade de notebooks:', updateError);
+      return;
+    }
+  
+    // Atualize o estado local removendo a entrega
+    setInventory((prev) => ({
+      ...prev,
+      historico: prev.historico.filter((entrega) => entrega.id !== id), // Remover a entrega do estado
+      [localKey]: prev[localKey] + entrega.quantidade, // Atualizar a quantidade de notebooks localmente
+    }));
+  }
+  
 
   return {
     inventory,
@@ -127,5 +208,6 @@ export function useInventory() {
     handleAdicionar,
     handleRemover,
     handleEntrega,
+    handleRemoverEntrega,
   };
 }
