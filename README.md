@@ -23,6 +23,14 @@ Este projeto é um sistema de gerenciamento de estoque de notebooks que utiliza 
    - Vá para SQL Editor
    - Execute o script SQL localizado em `supabase/migrations/00000000000000_initial_schema.sql`
 
+5. Configuração da Autenticação:
+   - No painel do Supabase, vá para Authentication > Settings
+   - Habilite Email Auth Provider
+   - Configure as políticas de acesso em Database > Policies
+   - Crie um usuário inicial através do painel do Supabase:
+     - Authentication > Users > Invite User
+     - O usuário receberá um email para definir sua senha
+
 ## Estrutura do Banco de Dados
 
 O banco de dados consiste em três tabelas principais:
@@ -30,6 +38,13 @@ O banco de dados consiste em três tabelas principais:
 1. `locais`: Armazena os locais disponíveis (Sala de TI e Servidor)
 2. `notebooks`: Mantém o controle do estoque de notebooks em cada local
 3. `entregas`: Registra o histórico de entregas de notebooks
+
+## Segurança
+
+O sistema implementa:
+- Autenticação de usuários via email/senha
+- Proteção de rotas para usuários não autenticados
+- Políticas de acesso ao banco de dados baseadas no usuário
 
 ## Desenvolvimento
 

@@ -1,10 +1,15 @@
 import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { LoginForm } from './components/LoginForm';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { Header } from './components/Header';
 import { EstoqueCard } from './components/EstoqueCard';
 import { EntregaForm } from './components/EntregaForm';
 import { HistoricoEntregas } from './components/HistoricoEntregas';
 import { useInventory } from './hooks/useInventory';
 
-function App() {
+function InventoryDashboard() {
   const { inventory, loading, handleAdicionar, handleRemover, handleEntrega } = useInventory();
   const totalNotebooks = inventory.ti + inventory.servidor;
 
@@ -17,12 +22,9 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <h1 className="text-3xl font-bold text-center text-gray-800">
-          Gerenciamento de Estoque de Notebooks
-        </h1>
-        
+    <div className="min-h-screen bg-gray-100">
+      <Header />
+      <div className="max-w-6xl mx-auto p-8 space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <EstoqueCard
             titulo="Sala de TI"
@@ -52,6 +54,27 @@ function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginForm />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <InventoryDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
