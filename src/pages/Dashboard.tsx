@@ -71,7 +71,7 @@ export function Dashboard() {
         </div>
 
         {/* Estoque Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <EstoqueCard
             titulo="Sala de TI"
             quantidade={inventory.ti}
@@ -103,7 +103,7 @@ export function Dashboard() {
         {/* Modal de Confirmação */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-xs w-full">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:max-w-sm md:max-w-md lg:max-w-lg">
               <h3 className="text-xl font-semibold mb-4">
                 Tem certeza que deseja {actionType === 'adicionar' ? 'adicionar' : 'remover'} {quantity} notebook{quantity > 1 ? 's' : ''} da {local === 'ti' ? 'Sala de TI' : 'Servidor'}?
               </h3>
@@ -117,16 +117,16 @@ export function Dashboard() {
                   max={inventory[local!]}  // Limita o valor máximo para a quantidade disponível
                 />
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-4">
                 <button
                   onClick={confirmAction}
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex-1"
                 >
                   Confirmar
                 </button>
                 <button
                   onClick={closeModal}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex-1"
                 >
                   Cancelar
                 </button>

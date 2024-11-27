@@ -58,39 +58,29 @@ export function HistoricoPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-blue-600 text-white">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                    Data
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                    Colaborador
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                    Local
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                    Quantidade
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
-                    Ações
-                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider sm:px-6">Data</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider sm:px-6">Colaborador</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider sm:px-6">Local</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider sm:px-6">Quantidade</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider sm:px-6">Ações</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {inventory.historico.map((entrega) => (
                   <tr key={entrega.id} className="hover:bg-blue-50 transition-all duration-300 ease-in-out">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 sm:px-6">
                       {new Date(entrega.data).toLocaleDateString('pt-BR')}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 sm:px-6">
                       {entrega.colaborador}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 sm:px-6">
                       {entrega.local}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 sm:px-6">
                       {entrega.quantidade}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium sm:px-6">
                       <button
                         onClick={() => openModal(entrega.id)}
                         className="text-red-600 hover:text-red-900 transition-all duration-300 ease-in-out"
@@ -109,20 +99,20 @@ export function HistoricoPage() {
         {/* Modal de Confirmação */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-xs w-full">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:max-w-xs md:max-w-sm lg:max-w-md">
               <h3 className="text-xl font-semibold mb-4">
                 Tem certeza que deseja remover esta entrega?
               </h3>
-              <div className="flex justify-between">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-2">
                 <button
                   onClick={confirmAction}
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors w-full sm:w-auto"
                 >
                   Confirmar
                 </button>
                 <button
                   onClick={closeModal}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors w-full sm:w-auto"
                 >
                   Cancelar
                 </button>
