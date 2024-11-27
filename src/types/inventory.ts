@@ -3,6 +3,7 @@ export interface NotebookDelivery {
   colaborador: string;
   quantidade: number;
   local: 'TI' | 'Servidor';
+  local_id: number;
   data: string;
 }
 
